@@ -1,20 +1,59 @@
 import { Controller } from '@nestjs/common';
-import { EventPattern, MessagePattern } from '@nestjs/microservices';
+import { MessagePattern } from '@nestjs/microservices';
+import { prisma } from 'prisma/prismaClient';
+import { MessagePatFromGateway } from './dto/gateway-sync';
 
 @Controller()
 export class AppController {
-  @MessagePattern({ cmd: 'greeting' })
-  getGreetingMessage(name: string): string {
-    return `Hello ${name}`;
+  @MessagePattern(MessagePatFromGateway.Favorite)
+  favorite(messageId: string) {
+    try {
+      const updatedPost = prisma.post.update({
+        where: {
+          id: messageId,
+        },
+        data: {
+          likes: {
+            increment: 1,
+          },
+        },
+      });
+      return updatedPost;
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
   }
 
-  @MessagePattern({ cmd: 'greeting-async' })
-  async getGreetingMessageAysnc(name: string): Promise<string> {
-    return `Hello ${name} Async`;
+  @MessagePattern(MessagePatFromGateway.Post)
+  post(data: any) {
+    try {
+      prisma.post.create({
+        data: {
+          userId: data.userId,
+          content: data.content,
+          likes: 0,
+          activityId: data.activityId,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
   }
 
-  @EventPattern('book-created')
-  async handleBookCreatedEvent(data: Record<string, unknown>) {
-    console.log(data);
+  @MessagePattern(MessagePatFromGateway.GetAllByActivityId)
+  getAllByActivityId(activityId: string) {
+    try {
+      const posts = prisma.post.findMany({
+        where: {
+          activityId: activityId,
+        },
+      });
+      return posts;
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
   }
 }

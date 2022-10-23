@@ -18,6 +18,7 @@ model Post {
   content    String
   createdAt  DateTime @default(now())
   likes      Int
+  likedUsers String[]
 
   @@index([activityId], name: "activityId")
 }

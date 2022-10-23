@@ -6,16 +6,18 @@ import { MessagePatFromGateway } from './dto/gateway-sync';
 @Controller()
 export class AppController {
   @MessagePattern(MessagePatFromGateway.Favorite)
-  async favorite(messageId: string) {
+  async favorite(data: any) {
     try {
       const updatedPost = await prisma.post.update({
         where: {
-          id: messageId,
+          id: data.messageId,
         },
         data: {
           likes: {
             increment: 1,
           },
+          //add user to likedUsers
+          likedUsers: [...data.userId],
         },
       });
       return updatedPost;
@@ -28,7 +30,7 @@ export class AppController {
   @MessagePattern(MessagePatFromGateway.Post)
   async post(data: any) {
     try {
-      await prisma.post.create({
+      const post = await prisma.post.create({
         data: {
           userId: data.userId,
           content: data.content,
@@ -36,6 +38,7 @@ export class AppController {
           activityId: data.activityId,
         },
       });
+      return post;
     } catch (err) {
       console.log(err);
       return err;

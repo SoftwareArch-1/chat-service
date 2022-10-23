@@ -28,7 +28,7 @@ export class AppController {
   @MessagePattern(MessagePatFromGateway.Post)
   async post(data: any) {
     try {
-      const a = await prisma.post.create({
+      await prisma.post.create({
         data: {
           userId: data.userId,
           content: data.content,
@@ -36,7 +36,6 @@ export class AppController {
           activityId: data.activityId,
         },
       });
-      console.log(a);
     } catch (err) {
       console.log(err);
       return err;

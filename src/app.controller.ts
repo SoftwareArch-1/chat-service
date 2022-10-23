@@ -17,7 +17,9 @@ export class AppController {
             increment: 1,
           },
           //add user to likedUsers
-          likedUsers: [...data.userId],
+          likedUsers: {
+            push: data.userId,
+          },
         },
       });
       return updatedPost;

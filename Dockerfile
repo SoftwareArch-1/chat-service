@@ -9,6 +9,7 @@ COPY ["package.json", "yarn.lock", "./"]
 RUN ls
 RUN yarn install
 COPY . .
+RUN yarn prisma generate
 RUN yarn build
 
 EXPOSE 8080
